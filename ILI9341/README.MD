@@ -15,7 +15,7 @@
  同时应当注意mosi，miso，sck三个io的speed应当设置为最高速率（<font color=#DC143C size=3 face="黑体">这点在使用STM32H7时必须注意</font>，cubemx在初始化H7的SPI相关时会变成LOW）,NSS信号应当开启硬件控制,其次在<font color=#DC143C size=3 face="黑体">RST,DC应当命名为LCD_RST和LCD_DC </font>。
  * 性能测试  
  通过初始化TIM1来计时，计算FPS
- ![FPS测试](https://raw.githubusercontent.com/LIGHT1213/picture/master/FPS.gif)  
+ ![FPS](https://tuchuang-1256823826.cos.ap-nanjing.myqcloud.com/FPS.gif)  
  注意该测试基于STM32H743开启Dcache之后，但是实际使用中并不会开启DCache(为了更加兼容没有Cache的MCU)。在开启DMA后，效率可以达到开启Dcache的85％，不建议同时开启DMA和DCache，具体原因请看[这里](http://www.pchmath.top:1234/index.php/2020/06/22/%e8%ae%b0%e5%bd%95%e4%b8%80%e6%ac%a1stm32h743%e4%b8%b2%e5%8f%a3%e4%b8%8d%e5%ae%9a%e9%95%bfdmacache%e5%90%88%e5%b9%b6%e5%ae%9e%e7%8e%b0%e8%bf%87%e7%a8%8b/)。
 ## *版本*
 * 目前版本v1.0 
