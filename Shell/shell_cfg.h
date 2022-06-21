@@ -31,12 +31,12 @@
  * @brief 是否使用shell伴生对象
  *        一些扩展的组件(文件系统支持，日志工具等)需要使用伴生对象
  */
-#define     SHELL_USING_COMPANION       0
+#define     SHELL_USING_COMPANION       1
 
 /**
  * @brief 支持shell尾行模式
  */
-#define     SHELL_SUPPORT_END_LINE      0
+#define     SHELL_SUPPORT_END_LINE      1
 
 /**
  * @brief 是否在输出命令列表中列出用户
@@ -85,7 +85,7 @@
 
 /**
  * @brief shell命令参数最大数量
- *        包含命令名在内，超过8个参数并且使用了参数自动转换的情况下，需要修改源码
+ *        包含命令名在内，超过16个参数并且使用了参数自动转换的情况下，需要修改源码
  */
 #define     SHELL_PARAMETER_MAX_NUMBER  8
 
@@ -99,6 +99,19 @@
  *        使能宏`SHELL_LONG_HELP`后此宏生效，定义双击tab补全help的时间间隔
  */
 #define     SHELL_DOUBLE_CLICK_TIME     200
+
+/**
+ * @brief 快速帮助
+ *        作用于双击tab的场景，当使能此宏时，双击tab不会对命令进行help补全，而是直接显示对应命令的帮助信息
+ */
+#define     SHELL_QUICK_HELP            1
+
+/**
+ * @brief 保存命令返回值
+ *        开启后会默认定义一个`RETVAL`变量，会保存上一次命令执行的返回值，可以在随后的命令中进行调用
+ *        如果命令的`SHELL_CMD_DISABLE_RETURN`标志被设置，则该命令不会更新`RETVAL`
+ */
+#define     SHELL_KEEP_RETURN_VALUE     0
 
 /**
  * @brief 管理的最大shell数量
@@ -126,16 +139,22 @@
 #define     SHELL_GET_TICK()            0
 
 /**
+ * @brief 使用锁
+ * @note 使用shell锁时，需要对加锁和解锁进行实现
+ */
+#define     SHELL_USING_LOCK            0
+
+/**
  * @brief shell内存分配
  *        shell本身不需要此接口，若使用shell伴生对象，需要进行定义
  */
-#define     SHELL_MALLOC(size)          0
+#define     SHELL_MALLOC(size)          pvPortMalloc(size)
 
 /**
  * @brief shell内存释放
  *        shell本身不需要此接口，若使用shell伴生对象，需要进行定义
  */
-#define     SHELL_FREE(obj)             0
+#define     SHELL_FREE(obj)             vPortFree(obj)
 
 /**
  * @brief 是否显示shell信息
@@ -150,7 +169,7 @@
 /**
  * @brief shell默认用户
  */
-#define     SHELL_DEFAULT_USER          "LightPan"
+#define     SHELL_DEFAULT_USER          "lightPan"
 
 /**
  * @brief shell默认用户密码
