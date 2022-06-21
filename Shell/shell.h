@@ -13,10 +13,11 @@
 #define     __SHELL_H__
 
 #include "shell_cfg.h"
-#define     USE_SHELL 0
-#define     SHELL_VERSION               "3.0.6"                 /**< 版本号 */
-
-
+#include "FreeRTOS.h"
+#include "devConfig.h"
+#define     SHELL_VERSION               "3.1.2"                 /**< 版本号 */
+//#define     OLD_SHELL
+#define __DEBUG
 /**
  * @brief shell 断言
  *
@@ -28,6 +29,13 @@
                 action; \
             }
 
+#if SHELL_USING_LOCK == 1
+#define     SHELL_LOCK(shell)           shell->lock(shell)
+#define     SHELL_UNLOCK(shell)         shell->unlock(shell)
+#else
+#define     SHELL_LOCK(shell)
+#define     SHELL_UNLOCK(shell)
+#endif /** SHELL_USING_LOCK == 1 */
 /**
  * @brief shell 命令权限
  *
@@ -68,15 +76,27 @@
 #define     SHELL_CMD_PARAM_NUM(num) \
             ((num & 0x0000000F)) << 16
 
-#ifndef SECTION
-#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && __ARMCC_VERSION >= 6000000)
-#define SECTION(x)                  __attribute__((used, section(x)))
-#elif defined(__ICCARM__) || defined(__ICCRX__)
-#define SECTION(x)                  @ x
+#ifndef SHELL_SECTION
+#if defined(__CC_ARM) || defined(__CLANG_ARM)
+#define SHELL_SECTION(x)                __attribute__((section(x)))
+#elif defined (__IAR_SYSTEMS_ICC__)
+#define SHELL_SECTION(x)                @ x
 #elif defined(__GNUC__)
-#define SECTION(x)                  __attribute__((section(x)))
+#define SHELL_SECTION(x)                __attribute__((section(x)))
 #else
-#define SECTION(x)
+#define SHELL_SECTION(x)
+#endif
+#endif
+
+#ifndef SHELL_USED
+#if defined(__CC_ARM) || defined(__CLANG_ARM)
+#define SHELL_USED                      __attribute__((used))
+#elif defined (__IAR_SYSTEMS_ICC__)
+#define SHELL_USED                      __root
+#elif defined(__GNUC__)
+#define SHELL_USED                      __attribute__((used))
+#else
+#define SHELL_USED
 #endif
 #endif
 
@@ -113,8 +133,8 @@
 #define SHELL_EXPORT_CMD(_attr, _name, _func, _desc) \
             const char shellCmd##_name[] = #_name; \
             const char shellDesc##_name[] = #_desc; \
-            const ShellCommand \
-            shellCommand##_name SECTION("shellCommand") =  \
+            SHELL_USED const ShellCommand \
+            shellCommand##_name SHELL_SECTION("shellCommand") =  \
             { \
                 .attr.value = _attr, \
                 .data.cmd.name = shellCmd##_name, \
@@ -146,8 +166,8 @@
 #define SHELL_EXPORT_VAR(_attr, _name, _value, _desc) \
             const char shellCmd##_name[] = #_name; \
             const char shellDesc##_name[] = #_desc; \
-            const ShellCommand \
-            shellVar##_name SECTION("shellCommand") =  \
+            SHELL_USED const ShellCommand \
+            shellVar##_name SHELL_SECTION("shellCommand") =  \
             { \
                 .attr.value = _attr, \
                 .data.var.name = shellCmd##_name, \
@@ -167,8 +187,8 @@
             const char shellCmd##_name[] = #_name; \
             const char shellPassword##_name[] = #_password; \
             const char shellDesc##_name[] = #_desc; \
-            const ShellCommand \
-            shellUser##_name SECTION("shellCommand") =  \
+            SHELL_USED const ShellCommand \
+            shellUser##_name SHELL_SECTION("shellCommand") =  \
             { \
                 .attr.value = _attr|SHELL_CMD_TYPE(SHELL_TYPE_USER), \
                 .data.user.name = shellCmd##_name, \
@@ -186,8 +206,8 @@
  */
 #define SHELL_EXPORT_KEY(_attr, _value, _func, _desc) \
             const char shellDesc##_value[] = #_desc; \
-            const ShellCommand \
-            shellKey##_value SECTION("shellCommand") =  \
+            SHELL_USED const ShellCommand \
+            shellKey##_value SHELL_SECTION("shellCommand") =  \
             { \
                 .attr.value = _attr|SHELL_CMD_TYPE(SHELL_TYPE_KEY), \
                 .data.key.value = _value, \
@@ -311,6 +331,9 @@ typedef struct shell_def
 #if SHELL_USING_COMPANION == 1
         struct shell_companion_object *companions;              /**< 伴生对象 */
 #endif
+#if SHELL_KEEP_RETURN_VALUE == 1
+        int retVal;                                             /**< 返回值 */
+#endif
     } info;
     struct
     {
@@ -322,6 +345,7 @@ typedef struct shell_def
         unsigned short paramCount;                              /**< 参数数量 */
         int keyValue;                                           /**< 输入按键键值 */
     } parser;
+#if SHELL_HISTORY_MAX_NUMBER > 0
     struct
     {
         char *item[SHELL_HISTORY_MAX_NUMBER];                   /**< 历史记录 */
@@ -329,6 +353,7 @@ typedef struct shell_def
         unsigned short record;                                  /**< 当前记录位置 */
         signed short offset;                                    /**< 当前历史记录偏移 */
     } history;
+#endif /** SHELL_HISTORY_MAX_NUMBER > 0 */
     struct
     {
         void *base;                                             /**< 命令表基址 */
@@ -340,8 +365,12 @@ typedef struct shell_def
         unsigned char isActive : 1;                             /**< 当前活动Shell */
         unsigned char tabFlag : 1;                              /**< tab标志 */
     } status;
-    signed char (*read)(char *);                                /**< shell读函数 */
-    void (*write)(const char);                                  /**< shell写函数 */
+    signed short (*read)(char *, unsigned short);               /**< shell读函数 */
+    signed short (*write)(char *, unsigned short);              /**< shell写函数 */
+#if SHELL_USING_LOCK == 1
+    int (*lock)(struct shell_def *);                              /**< shell 加锁 */
+    int (*unlock)(struct shell_def *);                            /**< shell 解锁 */
+#endif
 } Shell;
 
 
@@ -407,7 +436,10 @@ typedef struct
 #define shellSetPath(_shell, _path)     (_shell)->info.path = _path
 #define shellGetPath(_shell)            ((_shell)->info.path)
 
+#define shellDeInit(shell)              shellRemove(shell)
+
 void shellInit(Shell *shell, char *buffer, unsigned short size);
+void shellRemove(Shell *shell);
 unsigned short shellWriteString(Shell *shell, const char *string);
 void shellPrint(Shell *shell, char *fmt, ...);
 void shellScan(Shell *shell, char *fmt, ...);
@@ -416,7 +448,6 @@ void shellHandler(Shell *shell, char data);
 void shellWriteEndLine(Shell *shell, char *buffer, int len);
 void shellTask(void *param);
 int shellRun(Shell *shell, const char *cmd);
-
 
 
 
@@ -438,4 +469,5 @@ void *shellCompanionGet(Shell *shell, int id);
 #endif
 
 #endif
+
 
