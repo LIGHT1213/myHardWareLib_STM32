@@ -4,9 +4,9 @@
  * @brief shell config
  * @version 3.0.0
  * @date 2019-12-31
- *
+ * 
  * @copyright (c) 2019 Letter
- *
+ * 
  */
 
 #ifndef __SHELL_CFG_H__
@@ -31,12 +31,12 @@
  * @brief 是否使用shell伴生对象
  *        一些扩展的组件(文件系统支持，日志工具等)需要使用伴生对象
  */
-#define     SHELL_USING_COMPANION       1
+#define     SHELL_USING_COMPANION       0
 
 /**
  * @brief 支持shell尾行模式
  */
-#define     SHELL_SUPPORT_END_LINE      1
+#define     SHELL_SUPPORT_END_LINE      0
 
 /**
  * @brief 是否在输出命令列表中列出用户
@@ -148,13 +148,13 @@
  * @brief shell内存分配
  *        shell本身不需要此接口，若使用shell伴生对象，需要进行定义
  */
-#define     SHELL_MALLOC(size)          pvPortMalloc(size)
+#define     SHELL_MALLOC(size)          0
 
 /**
  * @brief shell内存释放
  *        shell本身不需要此接口，若使用shell伴生对象，需要进行定义
  */
-#define     SHELL_FREE(obj)             vPortFree(obj)
+#define     SHELL_FREE(obj)             0
 
 /**
  * @brief 是否显示shell信息
@@ -169,7 +169,7 @@
 /**
  * @brief shell默认用户
  */
-#define     SHELL_DEFAULT_USER          "lightPan"
+#define     SHELL_DEFAULT_USER          "letter"
 
 /**
  * @brief shell默认用户密码

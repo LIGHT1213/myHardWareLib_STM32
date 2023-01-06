@@ -4,23 +4,22 @@
  * @brief letter shell
  * @version 3.0.0
  * @date 2019-12-30
- *
+ * 
  * @copyright (c) 2020 Letter
- *
+ * 
  */
 
 #ifndef     __SHELL_H__
 #define     __SHELL_H__
 
 #include "shell_cfg.h"
-#include "FreeRTOS.h"
-#include "devConfig.h"
+
 #define     SHELL_VERSION               "3.1.2"                 /**< 版本号 */
-//#define     OLD_SHELL
-#define __DEBUG
+
+
 /**
  * @brief shell 断言
- *
+ * 
  * @param expr 表达式
  * @param action 断言失败操作
  */
@@ -38,7 +37,7 @@
 #endif /** SHELL_USING_LOCK == 1 */
 /**
  * @brief shell 命令权限
- *
+ * 
  * @param permission 权限级别
  */
 #define     SHELL_CMD_PERMISSION(permission) \
@@ -46,7 +45,7 @@
 
 /**
  * @brief shell 命令类型
- *
+ * 
  * @param type 类型
  */
 #define     SHELL_CMD_TYPE(type) \
@@ -77,27 +76,27 @@
             ((num & 0x0000000F)) << 16
 
 #ifndef SHELL_SECTION
-#if defined(__CC_ARM) || defined(__CLANG_ARM)
-#define SHELL_SECTION(x)                __attribute__((section(x)))
-#elif defined (__IAR_SYSTEMS_ICC__)
-#define SHELL_SECTION(x)                @ x
-#elif defined(__GNUC__)
-#define SHELL_SECTION(x)                __attribute__((section(x)))
-#else
-#define SHELL_SECTION(x)
-#endif
+    #if defined(__CC_ARM) || defined(__CLANG_ARM)
+        #define SHELL_SECTION(x)                __attribute__((section(x)))
+    #elif defined (__IAR_SYSTEMS_ICC__)
+        #define SHELL_SECTION(x)                @ x
+    #elif defined(__GNUC__)
+        #define SHELL_SECTION(x)                __attribute__((section(x)))
+    #else
+        #define SHELL_SECTION(x)
+    #endif
 #endif
 
 #ifndef SHELL_USED
-#if defined(__CC_ARM) || defined(__CLANG_ARM)
-#define SHELL_USED                      __attribute__((used))
-#elif defined (__IAR_SYSTEMS_ICC__)
-#define SHELL_USED                      __root
-#elif defined(__GNUC__)
-#define SHELL_USED                      __attribute__((used))
-#else
-#define SHELL_USED
-#endif
+    #if defined(__CC_ARM) || defined(__CLANG_ARM)
+        #define SHELL_USED                      __attribute__((used))
+    #elif defined (__IAR_SYSTEMS_ICC__)
+        #define SHELL_USED                      __root
+    #elif defined(__GNUC__)
+        #define SHELL_USED                      __attribute__((used))
+    #else
+        #define SHELL_USED
+    #endif
 #endif
 
 /**
@@ -112,7 +111,7 @@
 
 /**
  * @brief shell代理函数定义
- *
+ * 
  * @param _func 被代理的函数
  * @param ... 代理参数
  */
@@ -122,15 +121,15 @@
 
 #if SHELL_USING_CMD_EXPORT == 1
 
-/**
- * @brief shell 命令定义
- *
- * @param _attr 命令属性
- * @param _name 命令名
- * @param _func 命令函数
- * @param _desc 命令描述
- */
-#define SHELL_EXPORT_CMD(_attr, _name, _func, _desc) \
+    /**
+     * @brief shell 命令定义
+     * 
+     * @param _attr 命令属性
+     * @param _name 命令名
+     * @param _func 命令函数
+     * @param _desc 命令描述
+     */
+    #define SHELL_EXPORT_CMD(_attr, _name, _func, _desc) \
             const char shellCmd##_name[] = #_name; \
             const char shellDesc##_name[] = #_desc; \
             SHELL_USED const ShellCommand \
@@ -142,28 +141,28 @@
                 .data.cmd.desc = shellDesc##_name \
             }
 
-/**
- * @brief shell 代理命令定义
- *
- * @param _attr 命令属性
- * @param _name 命令名
- * @param _func 命令函数
- * @param _desc 命令描述
- * @param ... 代理参数
- */
-#define SHELL_EXPORT_CMD_AGENCY(_attr, _name, _func, _desc, ...) \
+    /**
+     * @brief shell 代理命令定义
+     * 
+     * @param _attr 命令属性
+     * @param _name 命令名
+     * @param _func 命令函数
+     * @param _desc 命令描述
+     * @param ... 代理参数
+     */
+    #define SHELL_EXPORT_CMD_AGENCY(_attr, _name, _func, _desc, ...) \
             SHELL_AGENCY_FUNC(_func, ##__VA_ARGS__) \
             SHELL_EXPORT_CMD(_attr, _name, SHELL_AGENCY_FUNC_NAME(_func), _desc)
 
-/**
- * @brief shell 变量定义
- *
- * @param _attr 变量属性
- * @param _name 变量名
- * @param _value 变量值
- * @param _desc 变量描述
- */
-#define SHELL_EXPORT_VAR(_attr, _name, _value, _desc) \
+    /**
+     * @brief shell 变量定义
+     * 
+     * @param _attr 变量属性
+     * @param _name 变量名
+     * @param _value 变量值
+     * @param _desc 变量描述
+     */
+    #define SHELL_EXPORT_VAR(_attr, _name, _value, _desc) \
             const char shellCmd##_name[] = #_name; \
             const char shellDesc##_name[] = #_desc; \
             SHELL_USED const ShellCommand \
@@ -175,15 +174,15 @@
                 .data.var.desc = shellDesc##_name \
             }
 
-/**
- * @brief shell 用户定义
- *
- * @param _attr 用户属性
- * @param _name 用户名
- * @param _password 用户密码
- * @param _desc 用户描述
- */
-#define SHELL_EXPORT_USER(_attr, _name, _password, _desc) \
+    /**
+     * @brief shell 用户定义
+     * 
+     * @param _attr 用户属性
+     * @param _name 用户名
+     * @param _password 用户密码
+     * @param _desc 用户描述
+     */
+    #define SHELL_EXPORT_USER(_attr, _name, _password, _desc) \
             const char shellCmd##_name[] = #_name; \
             const char shellPassword##_name[] = #_password; \
             const char shellDesc##_name[] = #_desc; \
@@ -196,15 +195,15 @@
                 .data.user.desc = shellDesc##_name \
             }
 
-/**
- * @brief shell 按键定义
- *
- * @param _attr 按键属性
- * @param _value 按键键值
- * @param _func 按键函数
- * @param _desc 按键描述
- */
-#define SHELL_EXPORT_KEY(_attr, _value, _func, _desc) \
+    /**
+     * @brief shell 按键定义
+     * 
+     * @param _attr 按键属性
+     * @param _value 按键键值
+     * @param _func 按键函数
+     * @param _desc 按键描述
+     */
+    #define SHELL_EXPORT_KEY(_attr, _value, _func, _desc) \
             const char shellDesc##_value[] = #_desc; \
             SHELL_USED const ShellCommand \
             shellKey##_value SHELL_SECTION("shellCommand") =  \
@@ -215,28 +214,28 @@
                 .data.key.desc = shellDesc##_value \
             }
 
-/**
- * @brief shell 代理按键定义
- *
- * @param _attr 按键属性
- * @param _value 按键键值
- * @param _func 按键函数
- * @param _desc 按键描述
- * @param ... 代理参数
- */
-#define SHELL_EXPORT_KEY_AGENCY(_attr, _value, _func, _desc, ...) \
+    /**
+     * @brief shell 代理按键定义
+     * 
+     * @param _attr 按键属性
+     * @param _value 按键键值
+     * @param _func 按键函数
+     * @param _desc 按键描述
+     * @param ... 代理参数
+     */
+    #define SHELL_EXPORT_KEY_AGENCY(_attr, _value, _func, _desc, ...) \
             SHELL_AGENCY_FUNC(_func, ##__VA_ARGS__) \
             SHELL_EXPORT_KEY(_attr, _value, SHELL_AGENCY_FUNC_NAME(_func), _desc)
 #else
-/**
- * @brief shell 命令item定义
- *
- * @param _attr 命令属性
- * @param _name 命令名
- * @param _func 命令函数
- * @param _desc 命令描述
- */
-#define SHELL_CMD_ITEM(_attr, _name, _func, _desc) \
+    /**
+     * @brief shell 命令item定义
+     * 
+     * @param _attr 命令属性
+     * @param _name 命令名
+     * @param _func 命令函数
+     * @param _desc 命令描述
+     */
+    #define SHELL_CMD_ITEM(_attr, _name, _func, _desc) \
             { \
                 .attr.value = _attr, \
                 .data.cmd.name = #_name, \
@@ -244,15 +243,15 @@
                 .data.cmd.desc = #_desc \
             }
 
-/**
- * @brief shell 变量item定义
- *
- * @param _attr 变量属性
- * @param _name 变量名
- * @param _value 变量值
- * @param _desc 变量描述
- */
-#define SHELL_VAR_ITEM(_attr, _name, _value, _desc) \
+    /**
+     * @brief shell 变量item定义
+     * 
+     * @param _attr 变量属性
+     * @param _name 变量名
+     * @param _value 变量值
+     * @param _desc 变量描述
+     */
+    #define SHELL_VAR_ITEM(_attr, _name, _value, _desc) \
             { \
                 .attr.value = _attr, \
                 .data.var.name = #_name, \
@@ -260,15 +259,15 @@
                 .data.var.desc = #_desc \
             }
 
-/**
- * @brief shell 用户item定义
- *
- * @param _attr 用户属性
- * @param _name 用户名
- * @param _password 用户密码
- * @param _desc 用户描述
- */
-#define SHELL_USER_ITEM(_attr, _name, _password, _desc) \
+    /**
+     * @brief shell 用户item定义
+     * 
+     * @param _attr 用户属性
+     * @param _name 用户名
+     * @param _password 用户密码
+     * @param _desc 用户描述
+     */
+    #define SHELL_USER_ITEM(_attr, _name, _password, _desc) \
             { \
                 .attr.value = _attr|SHELL_CMD_TYPE(SHELL_TYPE_USER), \
                 .data.user.name = #_name, \
@@ -276,15 +275,15 @@
                 .data.user.desc = #_desc \
             }
 
-/**
- * @brief shell 按键item定义
- *
- * @param _attr 按键属性
- * @param _value 按键键值
- * @param _func 按键函数
- * @param _desc 按键描述
- */
-#define SHELL_KEY_ITEM(_attr, _value, _func, _desc) \
+    /**
+     * @brief shell 按键item定义
+     * 
+     * @param _attr 按键属性
+     * @param _value 按键键值
+     * @param _func 按键函数
+     * @param _desc 按键描述
+     */
+    #define SHELL_KEY_ITEM(_attr, _value, _func, _desc) \
             { \
                 .attr.value = _attr|SHELL_CMD_TYPE(SHELL_TYPE_KEY), \
                 .data.key.value = _value, \
@@ -292,12 +291,12 @@
                 .data.key.desc = #_desc \
             }
 
-#define SHELL_EXPORT_CMD(_attr, _name, _func, _desc)
-#define SHELL_EXPORT_CMD_AGENCY(_attr, _name, _func, _desc, ...)
-#define SHELL_EXPORT_VAR(_attr, _name, _value, _desc)
-#define SHELL_EXPORT_USER(_attr, _name, _password, _desc)
-#define SHELL_EXPORT_KEY(_attr, _value, _func, _desc)
-#define SHELL_EXPORT_KEY_AGENCY(_attr, _name, _func, _desc, ...)
+    #define SHELL_EXPORT_CMD(_attr, _name, _func, _desc)
+    #define SHELL_EXPORT_CMD_AGENCY(_attr, _name, _func, _desc, ...)
+    #define SHELL_EXPORT_VAR(_attr, _name, _value, _desc)
+    #define SHELL_EXPORT_USER(_attr, _name, _password, _desc)
+    #define SHELL_EXPORT_KEY(_attr, _value, _func, _desc)
+    #define SHELL_EXPORT_KEY_AGENCY(_attr, _name, _func, _desc, ...)
 #endif /** SHELL_USING_CMD_EXPORT == 1 */
 
 /**
@@ -328,12 +327,12 @@ typedef struct shell_def
         const struct shell_command *user;                       /**< 当前用户 */
         int activeTime;                                         /**< shell激活时间 */
         char *path;                                             /**< 当前shell路径 */
-#if SHELL_USING_COMPANION == 1
+    #if SHELL_USING_COMPANION == 1
         struct shell_companion_object *companions;              /**< 伴生对象 */
-#endif
-#if SHELL_KEEP_RETURN_VALUE == 1
+    #endif
+    #if SHELL_KEEP_RETURN_VALUE == 1
         int retVal;                                             /**< 返回值 */
-#endif
+    #endif
     } info;
     struct
     {
@@ -419,7 +418,7 @@ typedef struct shell_command
             void (*function)(Shell *);                          /**< 按键执行函数 */
             const char *desc;                                   /**< 按键描述 */
         } key;                                                  /**< 按键定义 */
-    } data;
+    } data; 
 } ShellCommand;
 
 /**
@@ -441,7 +440,7 @@ typedef struct
 void shellInit(Shell *shell, char *buffer, unsigned short size);
 void shellRemove(Shell *shell);
 unsigned short shellWriteString(Shell *shell, const char *string);
-void shellPrint(Shell *shell, char *fmt, ...);
+void shellPrint(Shell *shell, const char *fmt, ...);
 void shellScan(Shell *shell, char *fmt, ...);
 Shell* shellGetCurrent(void);
 void shellHandler(Shell *shell, char data);
