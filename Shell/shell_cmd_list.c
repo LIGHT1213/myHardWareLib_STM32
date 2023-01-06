@@ -4,9 +4,9 @@
  * @brief shell cmd list
  * @version 3.0.0
  * @date 2020-01-17
- *
+ * 
  * @copyright (c) 2020 Letter
- *
+ * 
  */
 
 #include "shell.h"
@@ -37,15 +37,14 @@ SHELL_AGENCY_FUNC(shellRun, shellGetCurrent(), (const char *)p1);
 
 /**
  * @brief shell命令表
- *
+ * 
  */
-const ShellCommand shellCommandList[] =
+const ShellCommand shellCommandList[] = 
 {
-    {   .attr.value=SHELL_CMD_PERMISSION(0)|SHELL_CMD_TYPE(SHELL_TYPE_USER),
-        .data.user.name = SHELL_DEFAULT_USER,
-        .data.user.password = SHELL_DEFAULT_USER_PASSWORD,
-        .data.user.desc = "default user"
-    },
+    {.attr.value=SHELL_CMD_PERMISSION(0)|SHELL_CMD_TYPE(SHELL_TYPE_USER),
+    .data.user.name = SHELL_DEFAULT_USER,
+    .data.user.password = SHELL_DEFAULT_USER_PASSWORD,
+    .data.user.desc = "default user"},
     SHELL_CMD_ITEM(SHELL_CMD_PERMISSION(0)|SHELL_CMD_TYPE(SHELL_TYPE_CMD_FUNC),
                    setVar, shellSetVar, set var),
     SHELL_KEY_ITEM(SHELL_CMD_PERMISSION(0), 0x1B5B4100, shellUp, up),
@@ -96,9 +95,9 @@ const ShellCommand shellCommandList[] =
 
 /**
  * @brief shell命令表大小
- *
+ * 
  */
-const unsigned short shellCommandCount
+const unsigned short shellCommandCount 
     = sizeof(shellCommandList) / sizeof(ShellCommand);
 
 #endif

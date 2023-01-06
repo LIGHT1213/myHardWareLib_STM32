@@ -4,9 +4,9 @@
  * @brief shell extensions
  * @version 3.0.0
  * @date 2019-12-31
- *
+ * 
  * @copyright (c) 2019 Letter
- *
+ * 
  */
 
 #ifndef __SHELL_EXT_H__
@@ -16,7 +16,7 @@
 
 /**
  * @brief 数字类型
- *
+ * 
  */
 typedef enum
 {
