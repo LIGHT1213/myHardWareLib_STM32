@@ -137,7 +137,7 @@ uint32_t oled_pow(uint32_t a, uint32_t b)
 	uint32_t ans = 1, base = a;
 	while (b != 0)
 	{
-		if (b & 1 != 0)
+		if ((b & 1 )!= 0)
 			ans *= base;
 		base *= base;
 		b >>= 1;
